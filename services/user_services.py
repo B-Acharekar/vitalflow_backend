@@ -37,7 +37,6 @@ def login_user():
 
     if not user or not bcrypt.check_password_hash(user["password"], data["password"]):
         return jsonify({"error": "Invalid email or password"}), 404
-
     return jsonify({
         "message": "Login successful",
         "user": {

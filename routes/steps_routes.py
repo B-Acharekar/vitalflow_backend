@@ -8,11 +8,14 @@ def log_steps_routes():
     data = request.json
     user_id = data.get("user_id")  
     steps_count = data.get("steps_count")
+    steps_goal = data.get("steps_goal")
 
     if not user_id or not steps_count:
         return jsonify({"error": "Missing user_id or steps"}), 400
-    
-    return log_steps(user_id,steps_count)  # Directly returning response
+    elif not steps_goal:
+        steps_goal = None  # Set steps_goal to None if not provided in request
+        
+    return log_steps(user_id,steps_count,steps_goal)  # Directly returning response
 
 @steps_bp.route('/get-steps/<user_id>', methods=['GET'])
 def get_steps_routes(user_id):

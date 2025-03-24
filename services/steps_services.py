@@ -8,11 +8,12 @@ steps_collection = mongo.db.steps
 def timestamp():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-def log_steps(user_id,steps_count):
+def log_steps(user_id,steps_count,steps_goal):
     try:
         steps_entry = {
             "user_id": user_id,
             "steps_count": steps_count,
+            "steps_goal": steps_goal,
             "timestamp": timestamp()  # Add timestamp
         }
         steps_collection.insert_one(steps_entry)

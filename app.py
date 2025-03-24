@@ -3,13 +3,17 @@ from config import mongo
 from routes.user_routes import user_routes
 from routes.water_intake_routes import water_bp
 from routes.health_log_routes import health_bp
-from routes.steps_routers import steps_bp
+from routes.steps_routes import steps_bp
+from routes.heart_rate_routes import heart_rate_bp
+from routes.sleep_routes import sleep_bp
 
 app = Flask(__name__) 
 app.register_blueprint(user_routes)
 app.register_blueprint(water_bp)
 app.register_blueprint(health_bp)
 app.register_blueprint(steps_bp)
+app.register_blueprint(heart_rate_bp)
+app.register_blueprint(sleep_bp)
 
 # Pass the required route to the decorator. 
 @app.route('/',methods=['GET']) 
