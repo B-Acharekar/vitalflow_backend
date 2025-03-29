@@ -19,4 +19,5 @@ def log_sleep_routes():
 
 @sleep_bp.route('/get-sleep/<user_id>', methods=['GET'])
 def get_sleep_routes(user_id):
-    return get_sleep(user_id)  # ✅ Removed incorrect dictionary placement
+    range_type = request.args.get('range','today')
+    return get_sleep(user_id,range_type)  # ✅ Removed incorrect dictionary placement

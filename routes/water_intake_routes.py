@@ -16,4 +16,5 @@ def log_water():
 
 @water_bp.route('/get-water/<user_id>', methods=['GET'])
 def get_water(user_id):
-    return get_water_intake(user_id)  # ✅ Removed incorrect dictionary placement
+    range_type = request.args.get('range', 'today')  # Default to 'today'
+    return get_water_intake(user_id, range_type)

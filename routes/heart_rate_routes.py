@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from services.heart_rate_services import heart_rate_log,get_heart_rate_log
+from services.heart_rate_services import heart_rate_log,get_heart_rate
 
 heart_rate_bp = Blueprint("heart_rate", __name__)
 
@@ -15,5 +15,6 @@ def log_heart():
     return heart_rate_log(user_id,heart_rate_bpm)  # Directly returning response
 
 @heart_rate_bp.route('/get-heart-rate/<user_id>', methods=['GET'])
-def get_health(user_id):
-    return get_heart_rate_log(user_id)  # ✅ Removed incorrect dictionary placement
+def get_heart(user_id):
+    range_type = request.args.get('range','today')
+    return get_heart_rate(user_id,range_type)  # ✅ Removed incorrect dictionary placement

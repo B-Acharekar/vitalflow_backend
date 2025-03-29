@@ -19,4 +19,5 @@ def log_steps_routes():
 
 @steps_bp.route('/get-steps/<user_id>', methods=['GET'])
 def get_steps_routes(user_id):
-    return get_steps(user_id)  # ✅ Removed incorrect dictionary placement
+    range_type = request.args.get('range','today')
+    return get_steps(user_id,range_type)  # ✅ Removed incorrect dictionary placement
