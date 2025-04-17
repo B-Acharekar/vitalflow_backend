@@ -8,12 +8,12 @@ def log_day_rating():
     """API to log a new day rating"""
     data = request.get_json()
     user_id = data.get("user_id")
-    day_rating = data.get("day_rating")
+    user_note = data.get("user_note", "")  # Optional note from the user
 
-    if not user_id or day_rating is None:
-        return {"error": "user_id and day_rating are required"}, 400
+    if not user_id:
+        return {"error": "user_id is required"}, 400
 
-    return add_day_rating(user_id, day_rating)
+    return add_day_rating(user_id, user_note)
 
 @day_rating_bp.route("/day-rating/get", methods=["GET"])
 def fetch_day_rating():

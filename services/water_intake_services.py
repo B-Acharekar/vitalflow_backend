@@ -1,58 +1,72 @@
 from flask import jsonify
 from datetime import datetime, timedelta
-from config import mongo  # Ensure this is correctly set up
+from config import mongo
 
-# Reference to the hydration collection in MongoDB
-water_collection = mongo.db.hydration  
+water_collection = mongo.db.hydration
 
-def timestamp():
-    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Use timestamps
-
-def log_water_intake(user_id, water_intake_ml):
-    """Logs user's water intake into MongoDB."""
+def log_water_intake(user_id, water_intake_ml, note=None, log_time=None):
+    """
+    Logs user's water intake into MongoDB.
+    :param user_id: str
+    :param water_intake_ml: int
+    :param note: str (optional) - Original note provided by user
+    :param log_time: datetime (optional)
+    """
     try:
         water_entry = {
             "user_id": user_id,
             "water_intake_ml": water_intake_ml,
-            "timestamp": timestamp()  # Store timestamp as string
+            "timestamp": log_time or datetime.now(),
         }
+        if note:
+            water_entry["note"] = note  # Store original note for insight/debugging
+
+        # Insert water entry into MongoDB
         water_collection.insert_one(water_entry)
-        return jsonify({"message": "Water intake logged successfully"}), 201
+
+        return jsonify({
+            "message": "Water intake logged successfully",
+            "logged_ml": water_intake_ml,
+            "note": note,
+            "timestamp": water_entry["timestamp"].strftime("%Y-%m-%d %H:%M:%S")
+        }), 201
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 def get_water_intake(user_id, range_type="today"):
-    """Fetches water intake records based on range (today, week, month)."""
+    """
+    Fetches water intake records for user based on time range.
+    :param user_id: str
+    :param range_type: str ('today', 'week', 'month')
+    """
     try:
-        now = datetime.now()  # Get current time
+        now = datetime.now()
+        start_time = None
+        end_time = now
 
         if range_type == "today":
-            start_date = now.strftime('%Y-%m-%d')
-            query_filter = {"timestamp": {"$regex": f"^{start_date}"}}  # Match today's date
+            start_time = datetime(now.year, now.month, now.day)
 
         elif range_type == "week":
-            start_date = (now - timedelta(days=7)).strftime('%Y-%m-%d')  # 7 days ago
-            end_date = now.strftime('%Y-%m-%d')  # Today
-            query_filter = {
-                "timestamp": {"$gte": start_date, "$lte": end_date}
-            }  # Get records between start and end dates
+            start_time = now - timedelta(days=7)
 
         elif range_type == "month":
-            start_date = now.replace(day=1).strftime('%Y-%m-%d')  # First day of the month
-            end_date = now.strftime('%Y-%m-%d')  # Today
-            query_filter = {
-                "timestamp": {"$gte": start_date, "$lte": end_date}
-            }  # Get records between start and end dates
+            start_time = datetime(now.year, now.month, 1)
 
         else:
             return jsonify({"error": "Invalid range type"}), 400
 
-        # Query MongoDB with the selected time range
-        records = list(water_collection.find(
-            {"user_id": user_id, **query_filter},
-            {"_id": 0}  # Hide _id field
-        ))
+        query_filter = {
+            "user_id": user_id,
+            "timestamp": {"$gte": start_time, "$lte": end_time}
+        }
+
+        records = list(water_collection.find(query_filter, {"_id": 0}))
+        for rec in records:
+            rec["timestamp"] = rec["timestamp"].strftime("%Y-%m-%d %H:%M:%S")
 
         return jsonify({"water_intake": records}), 200
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
