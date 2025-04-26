@@ -129,5 +129,3 @@ Server runs at `http://localhost:5000/`
 - Dockerize for containerized deployment
 - Implement CI/CD pipeline
 ```
-
----
